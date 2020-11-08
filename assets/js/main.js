@@ -20,10 +20,11 @@ var city = {
     temp: '',
     humidity: '',
     wind: '',
-    uv: ''
+    uv: ' '
 }
 
 var citiesHistory = [];
+displaySearchHistory();
 
 $('#search').on('click', function(event){
     event.preventDefault();
@@ -161,11 +162,9 @@ function filterFiveDays(forecast){
     return fiveDayForecast;
 }
 
+//      save city weather and forecast info into local storage
 function saveCityHistory(city){
-    var history = JSON.parse(localStorage.getItem('searchHistory')); // load saved history from local storage
-    if (!history) {
-        history = []; // If there is no saved history then create empty array
-    }
+    var history = loadSearchHistory();
     console.log(history)
     var indexOfExist = history.findIndex(element => element.name === city.name); // check if city already exist in history
     if (indexOfExist === -1) {
@@ -177,14 +176,34 @@ function saveCityHistory(city){
     localStorage.setItem('searchHistory', JSON.stringify(history)); // save cities history to local storage
 }
 
+// Function to load search history list from local storage
+function loadSearchHistory(){
+    var history = JSON.parse(localStorage.getItem('searchHistory')); // load saved history from local storage
+    if (!history) {
+        history = []; // If there is no saved history then create empty array
+    }
+    return history;
+}
 
+// function to display search history on the page
+function displaySearchHistory(){
+    $('#searched-cities').empty();
+    var history = loadSearchHistory();
+    for (var i = 0; i < history.length; i++){
+        var $cityListItem = $('<a href="#" class="list-group-item list-group-item-action">');
+        $cityListItem.text(history[i].name);
+        $cityListItem.attr('data-index', i);
+        $('#searched-cities').append($cityListItem);
+    }
+
+}
+    
 });
 
 
 // 1. When user enters city name and then search icon is clicked the request is getting sent to get weather.
 
 
-//      save city weather and forecast info into local storage
 //      add city into search history list and dislpay in history list on page
 
 // 2. When User clicks on city in history
