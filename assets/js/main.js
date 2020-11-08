@@ -7,7 +7,7 @@
 //  Below weather now card there is another 5 cards with 5 day forecast for that city.
 // Then Current weather and 5 day forecast is displayed.
 // The City name, the date, icon for current weather, temperature, humidity, wind speed, UV Index.
-// When UV index is dipsplayed the color is according to conditions - favorable, moderate, or severe.
+
 // The 5 day forecast shows datem icon for weather, temperature, and humidity.
 // Search history is shown and when user clicks on city name in search the relevant weather data is shown.
 
@@ -22,16 +22,19 @@ var city = {
     wind: '',
     uv: ''
 }
+
 $('#search').on('click', function(event){
     event.preventDefault();
     $('#error').fadeOut();
     var city = $('#city').val();
     if (!city) return; // Guard if nothing is entered as city name
-    console.log('called get weather')
     getCityWeather(city);
+
+    // filterFiveDays(JSON.parse(localStorage.getItem('forecast')));
     
 });
-// Function to fetch city weather now
+
+// Function to fetch city weather and forecast
 function getCityWeather(cityToGet){
     var dateToday = moment().format('DD-MM-YYYY'); // get todays date using moment.js
     var hourNow = moment().format('H'); // get hour now using moment.js
@@ -76,7 +79,10 @@ function getCityWeather(cityToGet){
             }
         }).then(function(data){
             city.forecast = data.list;
-            displayWeather(city)
+            displayWeather(city);
+            city.fiveDays = filterFiveDays(city.forecast);
+            console.log(city);
+            displayForecast(city)
         })
     })
         
@@ -98,6 +104,7 @@ function displayWeather(city) {
     $('#humidity').text(city.humidity);
     $('#wind').text(city.wind);
     $('#uv').text(city.uv);
+    // When UV index is dipsplayed the color is according to conditions - favorable, moderate, or severe.
     // Assign UV Index style to display depending on condition
     if (city.uv < 3) {
         uvColor = 'green';
@@ -107,7 +114,51 @@ function displayWeather(city) {
     $('#uv').css('background-color', uvColor);
 }
 
+function displayForecast(city){
+    // Create forecast card div children and append later
+    var $dayCard = $('<div>');
+    $dayCard.addClass('card');
+    var $dayCardBody = $('<div>');
+    $dayCardBody.addClass('card-body forecast-card');
+    $dayCard.append($dayCardBody);
+    var $cardTitle = $('<h5>'); // date
+    var date = city.forecast[0].dt_txt.slice(0, 10).split('-').reverse().join('-'); // Extract date string and reverse
+    $cardTitle.text(date);
+    var $cardIcon = $('<img>'); // weather icon
+    $cardIcon.attr('src', `http://openweathermap.org/img/wn/${city.forecast[0].weather[0].icon}.png`);
+    var $temp = $('<div>');
+    $temp.html(`Temp: ${city.forecast[0].main.temp} &#8451`);
+    var $humid = $('<div>');
+    $humid.text(`Humidity: ${city.forecast[0].main.humidity} %`);
+    $dayCardBody.append($cardTitle);
+    $dayCardBody.append($cardIcon);
+    $dayCardBody.append($temp);
+    $dayCardBody.append($humid);
+    $('#forecast-cards').append($dayCard);
 
+}
+
+// function to filter 5-day forecast data at noon from array of forecast from HTTP response
+function filterFiveDays(forecast){
+    var fiveDayForecast = [];
+    for (var i = 1; i < 6; i++) {
+        var nextDay = forecast.filter(day => {
+            var nextDate = moment().add(i,'days').format('YYYY-MM-DD') + ' 12:00:00'; // get next date using moment.js
+            return day.dt_txt === nextDate;
+        });
+        console.log(nextDay);
+        var dayInfo = {
+            date: nextDay[0].dt_txt,
+            icon: nextDay[0].weather[0].icon,
+            temp: nextDay[0].main.temp,
+            humidity: nextDay[0].main.humidity
+        }
+        
+        fiveDayForecast.push(dayInfo);
+    }
+    
+    return fiveDayForecast;
+}
 
 });
 // 1. When user enters city name and then search icon is clicked the request is getting sent to get weather.
