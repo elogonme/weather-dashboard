@@ -13,7 +13,8 @@
 
 $(document).ready(function(){
 
-// Initialize app.
+// ------- Initialize app -----------------
+// Create empty city object for use
 var city = {
     name: '',
     date: '',
@@ -23,18 +24,21 @@ var city = {
     uv: ' '
 }
 
-var citiesHistory = [];
 displaySearchHistory();
-
+// Event listener to detect search button click and start search
 $('#search').on('click', function(event){
     event.preventDefault();
     $('#error').fadeOut();
     var city = $('#city').val();
     if (!city) return; // Guard if nothing is entered as city name
     getCityWeather(city);
+});
 
-    // filterFiveDays(JSON.parse(localStorage.getItem('forecast')));
-    
+// Event listener to detect click on city from history list
+$("#searched-cities a").on('click', function(event){
+    event.preventDefault();
+    var index = $(this).attr('data-index');
+    loadCityWeatherHistory(index);
 });
 
 // Function to fetch city weather and forecast
@@ -190,14 +194,21 @@ function displaySearchHistory(){
     $('#searched-cities').empty();
     var history = loadSearchHistory();
     for (var i = 0; i < history.length; i++){
-        var $cityListItem = $('<a href="#" class="list-group-item list-group-item-action">');
+        var $cityListItem = $('<a href="" class="list-group-item list-group-item-action">');
         $cityListItem.text(history[i].name);
         $cityListItem.attr('data-index', i);
         $('#searched-cities').append($cityListItem);
     }
-
 }
-    
+
+// function to load city weather and forcast from the search history
+function loadCityWeatherHistory(i){
+    var history = loadSearchHistory();
+    var city = history[i];
+    displayWeather(city);
+    displayForecast(city);
+}
+
 });
 
 
