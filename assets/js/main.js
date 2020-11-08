@@ -89,6 +89,7 @@ function getCityWeather(cityToGet){
 // Function to fetch City 5-day forecast
 // function to display retreived weather now on the page
 function displayWeather(city) {
+    var uvColor = '';
     console.log(city);
     $('#city-name').text(city.name);
     $('#date').text(city.date);
@@ -97,7 +98,13 @@ function displayWeather(city) {
     $('#humidity').text(city.humidity);
     $('#wind').text(city.wind);
     $('#uv').text(city.uv);
-
+    // Assign UV Index style to display depending on condition
+    if (city.uv < 3) {
+        uvColor = 'green';
+    } else if (city.uv < 6){
+        uvColor = 'yellow';
+    } else uvColor = 'red';
+    $('#uv').css('background-color', uvColor);
 }
 
 
