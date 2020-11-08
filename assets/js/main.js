@@ -8,7 +8,7 @@
 // Then Current weather and 5 day forecast is displayed.
 // The City name, the date, icon for current weather, temperature, humidity, wind speed, UV Index.
 
-// The 5 day forecast shows datem icon for weather, temperature, and humidity.
+// The 5 day forecast shows date, icon for weather, temperature, and humidity.
 // Search history is shown and when user clicks on city name in search the relevant weather data is shown.
 
 $(document).ready(function(){
@@ -22,6 +22,8 @@ var city = {
     wind: '',
     uv: ''
 }
+
+var citiesHistory = [];
 
 $('#search').on('click', function(event){
     event.preventDefault();
@@ -47,7 +49,6 @@ function getCityWeather(cityToGet){
         $('#error').fadeIn();
         throw new Error('Request failed');
     }).then(function(data){
-        console.log(data);
         city.name = data.name;
         city.lat = data.coord.lat;
         city.lon = data.coord.lon;
@@ -56,7 +57,6 @@ function getCityWeather(cityToGet){
         city.humidity = data.main.humidity;
         city.wind =  data.wind.speed;
         city.icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-        console.log(city);
         return city;
     }).then(function(city){
         // Get City Uv Index
@@ -81,8 +81,8 @@ function getCityWeather(cityToGet){
             city.forecast = data.list;
             displayWeather(city);
             city.fiveDays = filterFiveDays(city.forecast);
-            console.log(city);
             displayForecast(city)
+            saveCityHistory(city);
         })
     })
         
@@ -96,7 +96,6 @@ function getCityWeather(cityToGet){
 // function to display retreived weather now on the page
 function displayWeather(city) {
     var uvColor = '';
-    console.log(city);
     $('#city-name').text(city.name);
     $('#date').text(city.date);
     $('#icon').attr('src', city.icon);
@@ -119,7 +118,7 @@ function displayForecast(city){
     // Create forecast card div children and append later
     for (var i = 0; i < 5; i++){
         var $dayCard = $('<div>');
-        $dayCard.addClass('card');
+        $dayCard.addClass('card text-white bg-primary');
         var $dayCardBody = $('<div>');
         $dayCardBody.addClass('card-body forecast-card px-2 text-center');
         $dayCard.append($dayCardBody);
@@ -147,40 +146,43 @@ function displayForecast(city){
 function filterFiveDays(forecast){
     var fiveDayForecast = [];
     for (var i = 1; i < 6; i++) {
-        var nextDay = forecast.filter(day => {
+        var nextDay = forecast.filter(function(day){
             var nextDate = moment().add(i,'days').format('YYYY-MM-DD') + ' 12:00:00'; // get next date using moment.js
             return day.dt_txt === nextDate;
         });
-        console.log(nextDay);
         var dayInfo = {
             date: nextDay[0].dt_txt.slice(0, 10).split('-').reverse().join('-'), // Extract date string and reverse
             icon: nextDay[0].weather[0].icon.replace('n', 'd'), // Make sure that daylight icon is assigned
             temp: nextDay[0].main.temp,
             humidity: nextDay[0].main.humidity
         }
-        
         fiveDayForecast.push(dayInfo);
     }
-    
     return fiveDayForecast;
 }
 
+function saveCityHistory(city){
+    var history = JSON.parse(localStorage.getItem('searchHistory')); // load saved history from local storage
+    if (!history) {
+        history = []; // If there is no saved history then create empty array
+    }
+    console.log(history)
+    var indexOfExist = history.findIndex(element => element.name === city.name); // check if city already exist in history
+    if (indexOfExist === -1) {
+        history.push(Object.assign({}, city)); // make a clone of object to disonnect from next city objects
+    } else {
+        history[indexOfExist] = Object.assign({}, city); // Update existing city with new info
+    }
+    
+    localStorage.setItem('searchHistory', JSON.stringify(history)); // save cities history to local storage
+}
+
+
 });
+
+
 // 1. When user enters city name and then search icon is clicked the request is getting sent to get weather.
-//  when user enters city and clicks search
-//      check if anything in input if not continue waitng for input.
-//      get value of city name and form url for api
 
-//      send fetch http request to get city weather now.
-//      check if response is ok. 
-//      display error message if it is not
-//      if OK get weather info and display in weather now card.
-//          UV index bg-color is different depending on conditions: favorable, moderate, or severe.
-
-//      send fetch http request to get city 5-day forecast.
-//      check if response is ok. 
-//      display error message if it is not
-//      if OK get weather info and display in 5-day forecast cards.
 
 //      save city weather and forecast info into local storage
 //      add city into search history list and dislpay in history list on page

@@ -2,10 +2,6 @@
     width: auto;
 }
 
-.forecast-card {
-    background-color: #e6f2ff;
-}
-
 #error {
     display: none;
 }
