@@ -70,7 +70,7 @@ function getCityWeather(cityToGet){
         })
      
     }).then(function(){
-        // Get 5-day forecast
+        // Get 5-day forecast from API
         var endpointForecast = `http://api.openweathermap.org/data/2.5/forecast?q=${cityToGet}&units=metric&appid=${apiKey}`; 
         
         fetch(endpointForecast).then(function(response){
@@ -115,26 +115,31 @@ function displayWeather(city) {
 }
 
 function displayForecast(city){
+    $('#forecast-cards').empty(); // clear any previous forecast displayed
     // Create forecast card div children and append later
-    var $dayCard = $('<div>');
-    $dayCard.addClass('card');
-    var $dayCardBody = $('<div>');
-    $dayCardBody.addClass('card-body forecast-card');
-    $dayCard.append($dayCardBody);
-    var $cardTitle = $('<h5>'); // date
-    var date = city.forecast[0].dt_txt.slice(0, 10).split('-').reverse().join('-'); // Extract date string and reverse
-    $cardTitle.text(date);
-    var $cardIcon = $('<img>'); // weather icon
-    $cardIcon.attr('src', `http://openweathermap.org/img/wn/${city.forecast[0].weather[0].icon}.png`);
-    var $temp = $('<div>');
-    $temp.html(`Temp: ${city.forecast[0].main.temp} &#8451`);
-    var $humid = $('<div>');
-    $humid.text(`Humidity: ${city.forecast[0].main.humidity} %`);
-    $dayCardBody.append($cardTitle);
-    $dayCardBody.append($cardIcon);
-    $dayCardBody.append($temp);
-    $dayCardBody.append($humid);
-    $('#forecast-cards').append($dayCard);
+    for (var i = 0; i < 5; i++){
+        var $dayCard = $('<div>');
+        $dayCard.addClass('card');
+        var $dayCardBody = $('<div>');
+        $dayCardBody.addClass('card-body forecast-card px-2 text-center');
+        $dayCard.append($dayCardBody);
+        var $cardTitle = $('<h5>'); // date
+        $cardTitle.addClass('card-title');
+
+        $cardTitle.text(city.fiveDays[i].date);
+        var $cardIcon = $('<img>'); // weather icon
+        $cardIcon.attr('src', `http://openweathermap.org/img/wn/${city.fiveDays[i].icon}.png`);
+        var $temp = $('<div>');
+        $temp.html(`Temp: ${city.fiveDays[i].temp} &#8451`);
+        var $humid = $('<div>');
+        $humid.text(`Humidity: ${city.fiveDays[i].humidity} %`);
+        $dayCardBody.append($cardTitle);
+        $dayCardBody.append($cardIcon);
+        $dayCardBody.append($temp);
+        $dayCardBody.append($humid);
+        $('#forecast-cards').append($dayCard);
+    }
+    
 
 }
 
@@ -148,8 +153,8 @@ function filterFiveDays(forecast){
         });
         console.log(nextDay);
         var dayInfo = {
-            date: nextDay[0].dt_txt,
-            icon: nextDay[0].weather[0].icon,
+            date: nextDay[0].dt_txt.slice(0, 10).split('-').reverse().join('-'), // Extract date string and reverse
+            icon: nextDay[0].weather[0].icon.replace('n', 'd'), // Make sure that daylight icon is assigned
             temp: nextDay[0].main.temp,
             humidity: nextDay[0].main.humidity
         }
