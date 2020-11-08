@@ -23,8 +23,10 @@ var city = {
     wind: '',
     uv: ' '
 }
+var dateToday = moment().format('DD-MM-YYYY'); // get todays date using moment.js
+var historyLength = displaySearchHistory();
+getLastCityWeather(historyLength);
 
-displaySearchHistory();
 // Event listener to detect search button click and start search
 $('#search').on('click', function(event){
     event.preventDefault();
@@ -43,8 +45,7 @@ $("#searched-cities a").on('click', function(event){
 
 // Function to fetch city weather and forecast
 function getCityWeather(cityToGet){
-    var dateToday = moment().format('DD-MM-YYYY'); // get todays date using moment.js
-    var hourNow = moment().format('H'); // get hour now using moment.js
+    
     var apiKey = 'ff0f76a4c4d020f2b161d15988971e11';
     var endpoint = `http://api.openweathermap.org/data/2.5/weather?q=${cityToGet}&units=metric&appid=${apiKey}`; // form API endpoint URL
     fetch(endpoint).then(function(response){    // Get City weather now info
@@ -88,6 +89,7 @@ function getCityWeather(cityToGet){
             city.fiveDays = filterFiveDays(city.forecast);
             displayForecast(city)
             saveCityHistory(city);
+            displaySearchHistory();
         })
     })
         
@@ -96,8 +98,7 @@ function getCityWeather(cityToGet){
     })
 };
 
-// Function to fetch City UV Index
-// Function to fetch City 5-day forecast
+
 // function to display retreived weather now on the page
 function displayWeather(city) {
     var uvColor = '';
@@ -169,7 +170,6 @@ function filterFiveDays(forecast){
 //      save city weather and forecast info into local storage
 function saveCityHistory(city){
     var history = loadSearchHistory();
-    console.log(history)
     var indexOfExist = history.findIndex(element => element.name === city.name); // check if city already exist in history
     if (indexOfExist === -1) {
         history.push(Object.assign({}, city)); // make a clone of object to disonnect from next city objects
@@ -199,16 +199,30 @@ function displaySearchHistory(){
         $cityListItem.attr('data-index', i);
         $('#searched-cities').append($cityListItem);
     }
+    return history.length;  // return number of cities saved in history
 }
 
 // function to load city weather and forcast from the search history
 function loadCityWeatherHistory(i){
+    console.log('loading from history');
     var history = loadSearchHistory();
     var city = history[i];
     displayWeather(city);
     displayForecast(city);
+    return city;
 }
 
+// Function to get last city from history and output forecast from saved or updated
+function getLastCityWeather(historyLength){
+    var history = loadSearchHistory();
+    var city = history[historyLength-1];
+    if (city.date === dateToday){
+        loadCityWeatherHistory(historyLength-1);
+    } else {
+        getCityWeather(city); // Get updted data if date is old
+    }
+    
+}
 });
 
 
