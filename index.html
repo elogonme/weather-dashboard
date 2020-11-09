@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <link rel="stylesheet" href="assets/css/reset.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <title>Weather Dashboard</title>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="text-center py-2 bg-dark text-white"><i class="fas fa-cloud-sun pr-2"></i>Weather Dashboard</h1>
+    </header>
+    <main class="container">
+        <div class="row">
+            <form class="col-sm-3 bg-light">
+                <div class="form-group">
+                  <label for="city" class="mt-2 h5">Search for a City:</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="city" aria-describedby="city" placeholder="City name">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-primary" id="search"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                  
+                  <small id="error" class="form-text  ml-1 text-danger">City is not found or name is not valid</small>
+                </div>
+                <div id="searched-cities" class="list-group mb-3">
+                    </div>
+            </form>
+            <!-- Weather info card -->
+            <div class="col-sm-9">
+                <div id="weather" class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">
+                          <span id="city-name" ></span>
+                          <span id="date" class="text-muted ml-2"></span>
+                          <img src="http://openweathermap.org/img/wn/10d@2x.png" alt="Weather Icon" id="icon">
+                        </h5>
+                      
+                      <div class="card-text">
+                          <div class="info my-1">Temperature: <span id="temp"></span> &#8451</div>
+                          <div class="info my-1">Humidity: <span id="humidity"></span>%</div>
+                          <div class="info my-1">Wind Speed: <span id="wind"></span> m/s</div>
+                          <div class="info my-1">UV Index: <span id="uv" class="px-3 py-1 text-white rounded"></span></div>
+                      </div>
+                    </div>
+                </div>
+                  
+                <!-- 5-Day Forecast will go below -->
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <h5 class="card-title">5-Day Forecast</h2>
+                        <div id="forecast-cards" class="card-deck row-cols-xs-1">
+                          <!-- Forecast day cards will go here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
