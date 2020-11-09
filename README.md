@@ -10,9 +10,8 @@ Web Application can be accessed at [elogonme.github.io/weather-dashboard/](https
 
 Enter city name in the search field and click search button.
 When city is found the current weather and 5-day forecast will be displayed.
-
 History of searched cities will be also displayed in search list. User can click any city in the history list to display data immediately. 
-![Demo of Main page](assets/img/demo.png)
+![Demo of Main page](assets/img/demo.gif)
 
 ## Repository
 
