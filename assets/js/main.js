@@ -1,16 +1,4 @@
-// What is the theme of the app?
-// to get weather data and 5 day forcast of the city which was entered from user.
-// When app starts I see Weather Dashboard.
-// On the left input field and search button to enter and search city.
-// Below input there is a history of search - clickable list of cities.
-// On the right side the weather card for the city which was clicked or searched which shows the weather info now.
-//  Below weather now card there is another 5 cards with 5 day forecast for that city.
-// Then Current weather and 5 day forecast is displayed.
-// The City name, the date, icon for current weather, temperature, humidity, wind speed, UV Index.
-
-// The 5 day forecast shows date, icon for weather, temperature, and humidity.
-// Search history is shown and when user clicks on city name in search the relevant weather data is shown.
-
+// When html page is fully loaded ready - run the js
 $(document).ready(function(){
 // ------- Initialize app -----------------
 // Create empty city object for use
@@ -24,7 +12,7 @@ var city = {
 }
 var dateToday = moment().format('DD-MM-YYYY'); // get todays date using moment.js
 displaySearchHistory();
-getLastCityWeather();
+getLastCityWeather(); // On start up load last searched city if there is one saved
 
 // Event listener to detect search button click and start search
 $('#search').on('click', function(event){
@@ -56,22 +44,23 @@ $("#clear-history").on('click', function(){
         wind: '',
         uv: ' '
     }
-    displayWeather(city);
-    $('#uv').css('background-color', '#fff');
+    displayWeather(city); // Clear weather info on the page with blank empty city object
+    $('#uv').css('background-color', '#fff'); // Remove color class from UV index to make it white
 });
 
-
-// Function to fetch city weather and forecast
+// Function to fetch city weather and forecast from API
 function getCityWeather(cityToGet){
-    var apiKey = 'ff0f76a4c4d020f2b161d15988971e11';
-    var endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${cityToGet}&units=metric&appid=${apiKey}`; // form API endpoint URL
+    var apiKey = 'ff0f76a4c4d020f2b161d15988971e11'; // Openweather API key
+    // API endpoint URL for weather now
+    var endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${cityToGet}&units=metric&appid=${apiKey}`; 
     fetch(endpoint).then(function(response){    // Get City weather now info
         if (response.ok){
             return response.json();
         }
-        $('#error').fadeIn();
-        throw new Error('Request failed');
+        $('#error').fadeIn(); // Display error message on the page if city not found or invalid request
+        throw new Error('Request failed'); // Show error message in console
     }).then(function(data){
+        // Assign retrieved data to object properties
         city.name = data.name;
         city.lat = data.coord.lat;
         city.lon = data.coord.lon;
@@ -89,7 +78,7 @@ function getCityWeather(cityToGet){
                 return response.json();
             }
         }).then(function(data){
-            city.uv = data.value;
+            city.uv = data.value; // Assign retrieved UV index data to object uv property
             return city
         }).then(function(city){
             // Get 5-day forecast from API
@@ -99,18 +88,20 @@ function getCityWeather(cityToGet){
                     return response.json();
                 }
             }).then(function(data){
+                // Assign retrieved forcast list data to object property forecast
                 city.forecast = data.list;
                 displayWeather(city);
-                city.fiveDays = filterFiveDays(city.forecast);
+                // Filter out only 5 day data at noon from forecast list as it has data for every 3 hours
+                city.fiveDays = filterFiveDays(city.forecast); 
                 displayForecast(city)
-                saveCityHistory(city);
-                displaySearchHistory();
-            }).catch(function(err){  // output error message to console
+                saveCityHistory(city); // Save city weather info to local storage
+                displaySearchHistory(); // Add searched city to history list and update list on page
+            }).catch(function(err){  // output error message to console if there are any other network errors
                 console.log(err);
             })
         })
     })
-    .catch(function(err){ // output error message to console
+    .catch(function(err){ // output error message to console if there are any other network errors
         console.log(err);
     })
 };
@@ -126,7 +117,7 @@ function displayWeather(city) {
     $('#humidity').text(city.humidity);
     $('#wind').text(city.wind);
     $('#uv').text(city.uv);
-    // When UV index is dipsplayed the color is according to conditions - favorable, moderate, or severe.
+    // When UV index is dipsplayed the color is changed according to conditions - favorable, moderate, or severe.
     // Assign UV Index style to display depending on condition
     if (city.uv < 3) {
         uvColor = 'green';
@@ -138,7 +129,7 @@ function displayWeather(city) {
 
 function displayForecast(city){
     $('#forecast-cards').empty(); // clear any previous forecast displayed
-    // Create forecast card div children and append later
+    // Create forecast card div children and append later in for loop for 5 days forecast
     for (var i = 0; i < 5; i++){
         var $dayCard = $('<div>');
         $dayCard.addClass('card text-white bg-primary mx-2');
@@ -186,7 +177,7 @@ function filterFiveDays(forecast){
     return fiveDayForecast;
 };
 
-//      save city weather and forecast info into local storage
+// Function to save city weather and forecast info into local storage
 function saveCityHistory(city){
     var history = loadSearchHistory();
     var indexOfExist = history.findIndex(element => element.name === city.name); // check if city already exist in history
@@ -220,7 +211,7 @@ function displaySearchHistory(){
     return history.length;  // return number of cities saved in history
 };
 
-// function to load city weather and forcast from the search history
+// function to load city weather and forecast from the search history
 function loadCityWeatherHistory(i){
     var history = loadSearchHistory();
     var city = history[i];
@@ -229,7 +220,7 @@ function loadCityWeatherHistory(i){
     return city;
 };
 
-// Function to get last city from history and output forecast from saved or updated
+// Function to get last searched city from history and output forecast from saved or updated
 function getLastCityWeather(){
     var history = loadSearchHistory();
     var city = history[0];
@@ -237,7 +228,7 @@ function getLastCityWeather(){
     if (city.date === dateToday){
         loadCityWeatherHistory(0);
     } else {
-        getCityWeather(city); // Get updted data if date is old
+        getCityWeather(city); // Get updated data if date is old
     };
 };
 
