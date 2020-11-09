@@ -43,7 +43,7 @@ $("#searched-cities").on('click', function(event){
     loadCityWeatherHistory(index);
 });
 
-// Event listener to detect click on city from history list
+// Event listener to detect click on clear history button and clear data
 $("#clear-history").on('click', function(){
     localStorage.clear();
     $('#searched-cities').empty();
@@ -63,9 +63,8 @@ $("#clear-history").on('click', function(){
 
 // Function to fetch city weather and forecast
 function getCityWeather(cityToGet){
-    
     var apiKey = 'ff0f76a4c4d020f2b161d15988971e11';
-    var endpoint = `http://api.openweathermap.org/data/2.5/weather?q=${cityToGet}&units=metric&appid=${apiKey}`; // form API endpoint URL
+    var endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${cityToGet}&units=metric&appid=${apiKey}`; // form API endpoint URL
     fetch(endpoint).then(function(response){    // Get City weather now info
         if (response.ok){
             return response.json();
@@ -80,11 +79,11 @@ function getCityWeather(cityToGet){
         city.temp = data.main.temp;
         city.humidity = data.main.humidity;
         city.wind =  data.wind.speed;
-        city.icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+        city.icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
         return city;
     }).then(function(city){
         // Get City Uv Index
-        var endpointUv = `http://api.openweathermap.org/data/2.5/uvi?lat=${city.lat}&lon=${city.lon}&appid=${apiKey}`;
+        var endpointUv = `https://api.openweathermap.org/data/2.5/uvi?lat=${city.lat}&lon=${city.lon}&appid=${apiKey}`;
         fetch(endpointUv).then(function(response){
             if (response.ok){
                 return response.json();
@@ -94,7 +93,7 @@ function getCityWeather(cityToGet){
             return city
         }).then(function(city){
             // Get 5-day forecast from API
-            var endpointForecast = `http://api.openweathermap.org/data/2.5/forecast?q=${cityToGet}&units=metric&appid=${apiKey}`; 
+            var endpointForecast = `https://api.openweathermap.org/data/2.5/forecast?q=${cityToGet}&units=metric&appid=${apiKey}`; 
             fetch(endpointForecast).then(function(response){
                 if (response.ok){
                     return response.json();
@@ -151,7 +150,7 @@ function displayForecast(city){
 
         $cardTitle.text(city.fiveDays[i].date);
         var $cardIcon = $('<img>'); // weather icon
-        $cardIcon.attr('src', `http://openweathermap.org/img/wn/${city.fiveDays[i].icon}.png`);
+        $cardIcon.attr('src', `https://openweathermap.org/img/wn/${city.fiveDays[i].icon}.png`);
         var $temp = $('<div>');
         $temp.html(`Temp: ${city.fiveDays[i].temp} &#8451`);
         var $humid = $('<div>');
@@ -170,7 +169,11 @@ function filterFiveDays(forecast){
     for (var i = 1; i < 6; i++) {
         var nextDay = forecast.filter(function(day){
             var nextDate = moment().add(i,'days').format('YYYY-MM-DD') + ' 12:00:00'; // get next date using moment.js
-            return day.dt_txt === nextDate;
+            if (!day.dt_txt) {
+                // Some times there is no data for 12 noon for last day yet on openweather then get data for 9am
+                nextDate = moment().add(i,'days').format('YYYY-MM-DD') + ' 09:00:00';
+            };
+            return day.dt_txt === nextDate; // filter out data at next day around noon time
         });
         var dayInfo = {
             date: nextDay[0].dt_txt.slice(0, 10).split('-').reverse().join('-'), // Extract date string and reverse
