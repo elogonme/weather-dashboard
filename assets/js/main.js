@@ -43,6 +43,24 @@ $("#searched-cities").on('click', function(event){
     loadCityWeatherHistory(index);
 });
 
+// Event listener to detect click on city from history list
+$("#clear-history").on('click', function(){
+    localStorage.clear();
+    $('#searched-cities').empty();
+    $('#forecast-cards').empty();
+    var city = {
+        name: '',
+        date: '',
+        temp: '',
+        humidity: '',
+        wind: '',
+        uv: ' '
+    }
+    displayWeather(city);
+    $('#uv').css('background-color', '#fff');
+});
+
+
 // Function to fetch city weather and forecast
 function getCityWeather(cityToGet){
     
@@ -92,9 +110,7 @@ function getCityWeather(cityToGet){
                 console.log(err);
             })
         })
-     
     })
-        
     .catch(function(err){ // output error message to console
         console.log(err);
     })
@@ -119,7 +135,7 @@ function displayWeather(city) {
         uvColor = '#ffcc00';
     } else uvColor = 'red';
     $('#uv').css('background-color', uvColor);
-}
+};
 
 function displayForecast(city){
     $('#forecast-cards').empty(); // clear any previous forecast displayed
@@ -145,10 +161,8 @@ function displayForecast(city){
         $dayCardBody.append($temp);
         $dayCardBody.append($humid);
         $('#forecast-cards').append($dayCard);
-    }
-    
-
-}
+    };
+};
 
 // function to filter 5-day forecast data at noon from array of forecast from HTTP response
 function filterFiveDays(forecast){
@@ -167,7 +181,7 @@ function filterFiveDays(forecast){
         fiveDayForecast.push(dayInfo);
     }
     return fiveDayForecast;
-}
+};
 
 //      save city weather and forecast info into local storage
 function saveCityHistory(city){
@@ -178,9 +192,8 @@ function saveCityHistory(city){
     } else {
         history[indexOfExist] = Object.assign({}, city); // Update existing city with new info
     }
-    
     localStorage.setItem('searchHistory', JSON.stringify(history)); // save cities history to local storage
-}
+};
 
 // Function to load search history list from local storage
 function loadSearchHistory(){
@@ -189,7 +202,7 @@ function loadSearchHistory(){
         history = []; // If there is no saved history then create empty array
     }
     return history;
-}
+};
 
 // function to display search history on the page
 function displaySearchHistory(){
@@ -202,7 +215,7 @@ function displaySearchHistory(){
         $('#searched-cities').append($cityListItem);
     }
     return history.length;  // return number of cities saved in history
-}
+};
 
 // function to load city weather and forcast from the search history
 function loadCityWeatherHistory(i){
@@ -211,7 +224,7 @@ function loadCityWeatherHistory(i){
     displayWeather(city);
     displayForecast(city);
     return city;
-}
+};
 
 // Function to get last city from history and output forecast from saved or updated
 function getLastCityWeather(){
@@ -222,27 +235,7 @@ function getLastCityWeather(){
         loadCityWeatherHistory(0);
     } else {
         getCityWeather(city); // Get updted data if date is old
-    }
-    
-}
+    };
+};
+
 });
-
-
-// 1. When user enters city name and then search icon is clicked the request is getting sent to get weather.
-
-
-//      add city into search history list and dislpay in history list on page
-
-// 2. When User clicks on city in history
-//      check if date in stored info is too old.
-//      if need get new weather data (now and forecast) from weather website API
-//      display weather info for City which was clicked in history list.
-// --------------------------
-// Additional
-// 3. Clear history list button and clear local storage
-
-
-
-
-
-
