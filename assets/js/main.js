@@ -12,7 +12,6 @@
 // Search history is shown and when user clicks on city name in search the relevant weather data is shown.
 
 $(document).ready(function(){
-
 // ------- Initialize app -----------------
 // Create empty city object for use
 var city = {
@@ -24,8 +23,8 @@ var city = {
     uv: ' '
 }
 var dateToday = moment().format('DD-MM-YYYY'); // get todays date using moment.js
-var historyLength = displaySearchHistory();
-getLastCityWeather(historyLength);
+displaySearchHistory();
+getLastCityWeather();
 
 // Event listener to detect search button click and start search
 $('#search').on('click', function(event){
@@ -34,12 +33,13 @@ $('#search').on('click', function(event){
     var city = $('#city').val();
     if (!city) return; // Guard if nothing is entered as city name
     getCityWeather(city);
+    $('#city').val(''); // Clear input feild after search
 });
 
 // Event listener to detect click on city from history list
-$("#searched-cities a").on('click', function(event){
+$("#searched-cities").on('click', function(event){
     event.preventDefault();
-    var index = $(this).attr('data-index');
+    var index = $(event.target).attr('data-index');
     loadCityWeatherHistory(index);
 });
 
@@ -73,27 +73,29 @@ function getCityWeather(cityToGet){
             }
         }).then(function(data){
             city.uv = data.value;
+            return city
+        }).then(function(city){
+            // Get 5-day forecast from API
+            var endpointForecast = `http://api.openweathermap.org/data/2.5/forecast?q=${cityToGet}&units=metric&appid=${apiKey}`; 
+            fetch(endpointForecast).then(function(response){
+                if (response.ok){
+                    return response.json();
+                }
+            }).then(function(data){
+                city.forecast = data.list;
+                displayWeather(city);
+                city.fiveDays = filterFiveDays(city.forecast);
+                displayForecast(city)
+                saveCityHistory(city);
+                displaySearchHistory();
+            }).catch(function(err){  // output error message to console
+                console.log(err);
+            })
         })
      
-    }).then(function(){
-        // Get 5-day forecast from API
-        var endpointForecast = `http://api.openweathermap.org/data/2.5/forecast?q=${cityToGet}&units=metric&appid=${apiKey}`; 
-        
-        fetch(endpointForecast).then(function(response){
-            if (response.ok){
-                return response.json();
-            }
-        }).then(function(data){
-            city.forecast = data.list;
-            displayWeather(city);
-            city.fiveDays = filterFiveDays(city.forecast);
-            displayForecast(city)
-            saveCityHistory(city);
-            displaySearchHistory();
-        })
     })
         
-    .catch(function(err){
+    .catch(function(err){ // output error message to console
         console.log(err);
     })
 };
@@ -114,7 +116,7 @@ function displayWeather(city) {
     if (city.uv < 3) {
         uvColor = 'green';
     } else if (city.uv < 6){
-        uvColor = 'yellow';
+        uvColor = '#ffcc00';
     } else uvColor = 'red';
     $('#uv').css('background-color', uvColor);
 }
@@ -172,7 +174,7 @@ function saveCityHistory(city){
     var history = loadSearchHistory();
     var indexOfExist = history.findIndex(element => element.name === city.name); // check if city already exist in history
     if (indexOfExist === -1) {
-        history.push(Object.assign({}, city)); // make a clone of object to disonnect from next city objects
+        history.unshift(Object.assign({}, city)); // make a clone of object to disonnect from next city objects
     } else {
         history[indexOfExist] = Object.assign({}, city); // Update existing city with new info
     }
@@ -204,7 +206,6 @@ function displaySearchHistory(){
 
 // function to load city weather and forcast from the search history
 function loadCityWeatherHistory(i){
-    console.log('loading from history');
     var history = loadSearchHistory();
     var city = history[i];
     displayWeather(city);
@@ -213,11 +214,11 @@ function loadCityWeatherHistory(i){
 }
 
 // Function to get last city from history and output forecast from saved or updated
-function getLastCityWeather(historyLength){
+function getLastCityWeather(){
     var history = loadSearchHistory();
-    var city = history[historyLength-1];
+    var city = history[0];
     if (city.date === dateToday){
-        loadCityWeatherHistory(historyLength-1);
+        loadCityWeatherHistory(0);
     } else {
         getCityWeather(city); // Get updted data if date is old
     }
