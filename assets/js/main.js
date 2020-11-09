@@ -217,6 +217,7 @@ function loadCityWeatherHistory(i){
 function getLastCityWeather(){
     var history = loadSearchHistory();
     var city = history[0];
+    if (!city) return // return if there is no city saved in history
     if (city.date === dateToday){
         loadCityWeatherHistory(0);
     } else {
