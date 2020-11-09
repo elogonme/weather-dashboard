@@ -31,12 +31,14 @@
     </header>
     <main class="container">
         <div class="row">
-            <form class="col-3 bg-light">
+            <form class="col-sm-3 bg-light">
                 <div class="form-group">
                   <label for="city" class="mt-2 h5">Search for a City:</label>
-                  <div class="row">
-                    <input type="text" class="form-control ml-3" id="city" aria-describedby="city" placeholder="City name">
-                    <button type="submit" class="btn btn-primary" id="search"><i class="fas fa-search"></i></button>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="city" aria-describedby="city" placeholder="City name">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-primary" id="search"><i class="fas fa-search"></i></button>
+                    </div>
                   </div>
                   
                   <small id="error" class="form-text  ml-1 text-danger">City is not found or name is not valid</small>
@@ -45,7 +47,7 @@
                     </div>
             </form>
             <!-- Weather info card -->
-            <div class="col-9">
+            <div class="col-sm-9">
                 <div id="weather" class="card">
                     <div class="card-body">
                       <h5 class="card-title">
@@ -67,7 +69,7 @@
                 <div class="card mt-2">
                     <div class="card-body">
                         <h5 class="card-title">5-Day Forecast</h2>
-                        <div id="forecast-cards" class="card-deck">
+                        <div id="forecast-cards" class="card-deck row-cols-xs-1">
                           <!-- Forecast day cards will go here -->
                         </div>
                     </div>

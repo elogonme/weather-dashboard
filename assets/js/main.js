@@ -126,9 +126,9 @@ function displayForecast(city){
     // Create forecast card div children and append later
     for (var i = 0; i < 5; i++){
         var $dayCard = $('<div>');
-        $dayCard.addClass('card text-white bg-primary');
+        $dayCard.addClass('card text-white bg-primary mx-2');
         var $dayCardBody = $('<div>');
-        $dayCardBody.addClass('card-body forecast-card px-2 text-center');
+        $dayCardBody.addClass('card-body forecast-card text-center px-1');
         $dayCard.append($dayCardBody);
         var $cardTitle = $('<h5>'); // date
         $cardTitle.addClass('card-title');
